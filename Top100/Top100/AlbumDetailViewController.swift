@@ -72,27 +72,11 @@ class AlbumDetailViewController: UIViewController {
         button.layer.cornerRadius = 10
         button.backgroundColor = .systemBlue
         button.isUserInteractionEnabled = true
-        //button.configuration?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
-         // var outgoing = incoming
-         //   outgoing.font = UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.bold)
-         // return outgoing
-         //}
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.semibold)
         button.setTitle("Visit The Album", for: .normal)
         button.setTitleColor(.white, for: .normal)
         return button
     }()
-    
-   /* let albumView: UIStackView = {
-        let view = UIStackView()
-        view.frame.size.width = UIScreen.main.bounds.width
-        view.axis = .vertical
-        view.alignment = .leading
-        view.spacing = 10.0
-        view.distribution = .fill
-        view.translatesAutoresizingMaskIntoConstraints = true
-        return view
-    }() */
     
     let genresView: UIStackView = {
         let view = UIStackView()

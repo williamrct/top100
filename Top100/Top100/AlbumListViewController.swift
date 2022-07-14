@@ -38,22 +38,26 @@ class AlbumListViewController: UICollectionViewController, UICollectionViewDeleg
         super.viewDidLoad()
         
         // Tag: Set Navigation Bar Appearance
-        navigationItem.largeTitleDisplayMode = .automatic
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .never
 
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
 
-        appearance.largeTitleTextAttributes = [
-            NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 24),
-        ]
         appearance.titleTextAttributes = [
-            NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 15)
+            NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 16)
         ]
         
         navigationController?.navigationBar.isOpaque = true
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
         navigationController?.navigationBar.compactAppearance = appearance
         navigationController?.navigationBar.standardAppearance = appearance
+        
+        appearance.titleTextAttributes = [
+            NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 34)
+        ]
+        
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
 
 
         // Initialize collection view

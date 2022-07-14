@@ -26,7 +26,7 @@ class AlbumCollectionViewLayout: UICollectionViewLayout {
         super.prepare()
         
         guard let collectionView = collectionView else { return }
-        
+         
         // Reset cached information.
         cachedAttributes.removeAll()
         contentBounds = CGRect(origin: .zero, size: collectionView.bounds.size)
@@ -37,11 +37,13 @@ class AlbumCollectionViewLayout: UICollectionViewLayout {
         //  - Combine contentBounds with attributes.frame.
         let count = collectionView.numberOfItems(inSection: 0)
         
+        
+        
         var currentIndex = 0
         //var segment: SegmentStyle = .twoAcross
         var lastFrame: CGRect = .zero
         
-        let cvWidth: CGFloat = (UIScreen.main.bounds.width - 20)
+        let cvWidth: CGFloat = UIDevice.current.orientation.isLandscape ?  (UIScreen.main.bounds.height - 20) : (UIScreen.main.bounds.width - 20)
         let cvheight = cvWidth / 2
         
         while currentIndex < count {

@@ -58,7 +58,7 @@ class AlbumListViewController: UICollectionViewController, UICollectionViewDeleg
         ]
         
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
-
+        
 
         // Initialize collection view
         self.collectionView.register(AlbumCollectionViewCell.self, forCellWithReuseIdentifier: AlbumCollectionViewCell.identifier)

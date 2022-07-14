@@ -41,7 +41,7 @@ class AlbumCollectionViewCell: UICollectionViewCell {
     }()
     
     lazy var artistNameLBL: UILabel = {
-        let label = UILabel(frame: CGRect(x: CGFloat(22), y: CGFloat(self.frame.height - 26), width: CGFloat(self.frame.width - 44), height: CGFloat(14)))
+        let label = UILabel(frame: CGRect(x: CGFloat(22), y: CGFloat(self.frame.height - 32), width: CGFloat(self.frame.width - 44), height: CGFloat(14)))
         label.font = UIFont.systemFont(ofSize: 12, weight: UIFont.Weight.medium)
         label.lineBreakMode = .byTruncatingTail
         label.numberOfLines = 1

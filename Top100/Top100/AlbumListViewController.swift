@@ -70,6 +70,9 @@ class AlbumListViewController: UICollectionViewController, UICollectionViewDeleg
         self.collectionView.alwaysBounceVertical = true
         self.collectionView.indicatorStyle = .white
         self.collectionView.setCollectionViewLayout(AlbumCollectionViewLayout(), animated: true)
+        refreshControl.addTarget(self, action: #selector(didPullToRefresh(_:)), for: .valueChanged)
+        collectionView.alwaysBounceVertical = true
+        collectionView.refreshControl = refreshControl
         
         cancellable = top100AlbbumsViewModel.objectWillChange.sink { [weak self] in
             //self?.refreshCollectionView()
@@ -107,6 +110,12 @@ class AlbumListViewController: UICollectionViewController, UICollectionViewDeleg
     
     override func viewWillAppear(_ animated: Bool) {
         top100AlbbumsViewModel.load()
+    }
+    
+    @objc
+    private func didPullToRefresh(_ sender: Any) {
+        top100AlbbumsViewModel.load()
+        refreshControl.endRefreshing()
     }
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {

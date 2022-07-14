@@ -46,9 +46,11 @@ class AlbumCollectionViewLayout: UICollectionViewLayout {
         let cvWidth: CGFloat = UIDevice.current.orientation.isLandscape ?  (UIScreen.main.bounds.height - 20) : (UIScreen.main.bounds.width - 20)
         let cvheight = cvWidth / 2
         
+        let x = UIDevice.current.orientation.isLandscape ?  ((UIScreen.main.bounds.width - UIScreen.main.bounds.height)/2) : (10)
+        
         while currentIndex < count {
 
-            let segmentFrame = CGRect(x: 10, y: lastFrame.maxY + 1.0, width: cvWidth, height: cvheight)
+            let segmentFrame = CGRect(x: x, y: lastFrame.maxY + 1.0, width: cvWidth, height: cvheight)
             
             var segmentRects = [CGRect]()
 

@@ -185,7 +185,11 @@ class AlbumDetailViewController: UIViewController {
         
         self.view.addSubview(genresView)
         
-        self.releaseDateLBL.text = "Released \(releaseDate)"
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-M-dd"
+        let formattedReleaseDate = dateFormatter.date(from: releaseDate)?.getFormattedDate(format: "MMMM dd, yyyy")
+
+        self.releaseDateLBL.text = "Released \(formattedReleaseDate ?? "")"
         self.view.addSubview(releaseDateLBL)
         
         self.copyrightLBL.text = copyright

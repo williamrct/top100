@@ -39,7 +39,7 @@ class AlbumListViewController: UICollectionViewController, UICollectionViewDeleg
         
         // Tag: Set Navigation Bar Appearance
         navigationItem.largeTitleDisplayMode = .automatic
-        
+
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
 

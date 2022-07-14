@@ -215,6 +215,22 @@ class AlbumDetailViewController: UIViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        navigationItem.largeTitleDisplayMode = .automatic
+
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+
+        appearance.largeTitleTextAttributes = [
+            NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 24),
+        ]
+        appearance.titleTextAttributes = [
+            NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 15)
+        ]
+        
+        navigationController?.navigationBar.isOpaque = true
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        navigationController?.navigationBar.compactAppearance = appearance
+        navigationController?.navigationBar.standardAppearance = appearance
     }
     
     func estimatedLabelWidth(_ string: String, fontsize: CGFloat) -> CGFloat {

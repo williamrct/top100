@@ -8,20 +8,22 @@
 import Foundation
 import UIKit
 import RealmSwift
+import Combine
 
-class Top100ViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
-    
-    //private let top100CollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+class AlbumListViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
     
     let userRealm: Realm
     //let tasks: Results<Task>
     
     var notificationToken: NotificationToken?
     
-
+    var top100AlbbumsViewModel: Top100AlbumsViewModel
+    private var cancellable: AnyCancellable?
+    private let refreshControl = UIRefreshControl()
+    
     init(userRealmConfiguration: Realm.Configuration, collectionViewLayout: UICollectionViewLayout) {
         self.userRealm = try! Realm(configuration: userRealmConfiguration)
-        //super.init(nibName: nil, bundle: nil)
+        self.top100AlbbumsViewModel = Top100AlbumsViewModel()
         super.init(collectionViewLayout: UICollectionViewFlowLayout())
         self.title = "Top 100 Albums"
     }
@@ -30,24 +32,67 @@ class Top100ViewController: UICollectionViewController, UICollectionViewDelegate
         fatalError("init(coder:) has not been implemented")
     }
 
-    // TODO: deinit method
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Tag: Set Navigation Bar Appearance
+        navigationItem.largeTitleDisplayMode = .automatic
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
 
-        title = "Top 100 Albums"
+        appearance.largeTitleTextAttributes = [
+            NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 24),
+        ]
+        appearance.titleTextAttributes = [
+            NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 15)
+        ]
         
-        self.collectionView.register(AlbumCell.self, forCellWithReuseIdentifier: AlbumCell.identifier)
-        self.collectionView.register(Top100HeaderCollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: Top100HeaderCollectionReusableView.identifier)
-        
-        
+        navigationController?.navigationBar.isOpaque = true
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        navigationController?.navigationBar.compactAppearance = appearance
+        navigationController?.navigationBar.standardAppearance = appearance
+
+
+        // Initialize collection view
+        self.collectionView.register(AlbumCollectionViewCell.self, forCellWithReuseIdentifier: AlbumCollectionViewCell.identifier)
         self.collectionView.dataSource = self
         self.collectionView.delegate = self
-        self.collectionView.frame = self.view.frame
         self.collectionView.backgroundColor = .white
+        self.collectionView.isPrefetchingEnabled = false
+        self.collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.collectionView.alwaysBounceVertical = true
+        self.collectionView.indicatorStyle = .white
+        self.collectionView.setCollectionViewLayout(AlbumCollectionViewLayout(), animated: true)
         
-        // On the top left is a log out button.
-        //navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Log Out", style: .plain, target: self, action: #selector(logOutButtonDidClick))
+        cancellable = top100AlbbumsViewModel.objectWillChange.sink { [weak self] in
+            //self?.refreshCollectionView()
+            switch self?.top100AlbbumsViewModel.state {
+            case .isWaiting:
+                // Show loading spinner
+                // debugPrint("iswaiting")
+                break
+            case .isLoading:
+                // Show loading spinner
+                // debugPrint("isloading")
+                break
+            case .didFail(let error):
+                // Show error view
+                debugPrint("didFail \(error)")
+                break
+            case .didLoad:
+                // Show user's profile
+                //debugPrint("didLoad")
+                self?.collectionView.reloadData()
+            case .networkUnavailable:
+                // debugPrint("networkUnavailable")
+                break
+            case .none:
+                // debugPrint("none")
+                break
+            }
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -56,53 +101,63 @@ class Top100ViewController: UICollectionViewController, UICollectionViewDelegate
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        DispatchQueue.main.async { [weak self] in
-            self?.navigationController?.navigationBar.prefersLargeTitles = true
-            self?.navigationController?.navigationBar.sizeToFit()
-        }
-              
+        top100AlbbumsViewModel.load()
     }
     
-    @objc func logOutButtonDidClick() {
-        let alertController = UIAlertController(title: "Log Out", message: "", preferredStyle: .alert)
-        alertController.addAction(UIAlertAction(title: "Yes, Log Out", style: .destructive, handler: {
-            _ -> Void in
-            print("Logging out...")
-            self.navigationController?.popViewController(animated: true)
-            // TODO: log out the current user
-        }))
-        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        self.present(alertController, animated: true, completion: nil)
+    override func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
     }
-    
-    
-    /*override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        
-        //if kind == UICollectionView.elementKindSectionHeader {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: Top100HeaderCollectionReusableView.identifier, for: indexPath)
-        return header
-        //}
-    }*/
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        
+        let albumCount = top100AlbbumsViewModel.top100AlbumsFeed?.results.count ?? 0
     
-        return 12
+        return albumCount
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AlbumCell.identifier, for: indexPath)
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AlbumCollectionViewCell.identifier, for: indexPath) as? AlbumCollectionViewCell
+        else { preconditionFailure("Failed to load collection view cell") }
+        
 
+        cell.albumId = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].id ?? UUID().uuidString
+        cell.albumName = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].name ?? "Unknown"
+        cell.albumNameLBL.text = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].name ?? "Unknown"
+        //cell.albumNameLBL.text = "This is a long name to see what happens when we word wrap"
+        cell.artistId = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artistId ?? UUID().uuidString
+        cell.artistName = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artistName ?? "Unknown"
+        cell.artistNameLBL.text = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artistName ?? "Unknown"
+        
+        if let URLString = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artworkUrl100 {
+            if let url = NSURL(string: URLString)  {
+                ImageLoader.shared.loadImage(imageURL: url, completion: {image -> Void in
+                    cell.albumImageView.image = image
+                })
+            }
+        }
+                                                                                                      
         return cell
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let albumImageURL = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artworkUrl100 else { return }
+        guard let albumURL = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].url else { return }
+        let albumId = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].id ?? ""
+        guard let albumName = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].name else { return }
+        let artistId = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artistId ?? ""
+        guard let artistName = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artistName else { return }
+        guard let releaseDate = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].releaseDate else { return }
+        guard let copyright = top100AlbbumsViewModel.top100AlbumsFeed?.copyright else { return }
+        guard let genres = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].genres else { return }
+        let vc = AlbumDetailViewController(albumImageURL: albumImageURL, albumURL: albumURL, albumId:albumId, albumName: albumName, artistId: artistId, artistName: artistName, releaseDate: releaseDate, copyright: copyright, genres: genres)
 
+        self.navigationController?.pushViewController(vc, animated: true)
     }
  
-    /*func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: view.frame.size.width, height: view.frame.size.width/2)
-    }*/
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize.zero
+    }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 1
@@ -113,14 +168,15 @@ class Top100ViewController: UICollectionViewController, UICollectionViewDelegate
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 1, left: 1, bottom: 1, right: 1)
+        return UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: (view.frame.size.width/2 - 2), height: (view.frame.size.width/2 - 2))
+        return CGSize(width: ((collectionView.frame.size.width - 24)/2), height: ((collectionView.frame.size.width - 24)/2))
     }
     
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
 
     }
 

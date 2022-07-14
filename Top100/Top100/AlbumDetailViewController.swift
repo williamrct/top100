@@ -139,6 +139,8 @@ class AlbumDetailViewController: UIViewController {
         self.artistNameLBL = UILabel(frame: CGRect(x: CGFloat(16), y: CGFloat(UIScreen.main.bounds.width + 16), width: CGFloat(UIScreen.main.bounds.width - 32), height: CGFloat(21)))
         self.artistNameLBL.translatesAutoresizingMaskIntoConstraints = false
         self.artistNameLBL.font = UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.regular)
+        self.artistNameLBL.lineBreakMode = .byTruncatingTail
+        self.artistNameLBL.numberOfLines = 1
         self.artistNameLBL.textColor = UIColor.gray
         self.artistNameLBL.text = artistName
         

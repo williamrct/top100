@@ -30,7 +30,7 @@ class AlbumCollectionViewCell: UICollectionViewCell {
     }()
     
     lazy var albumNameLBL: UILabel = {
-        let label = UILabel(frame: CGRect(x: CGFloat(12), y: CGFloat(self.frame.height - 40), width: CGFloat(self.frame.width - 24), height: CGFloat(40)))
+        let label = UILabel(frame: CGRect(x: CGFloat(22), y: CGFloat(self.frame.height - 40), width: CGFloat(self.frame.width - 44), height: CGFloat(40)))
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.semibold)
         label.lineBreakMode = .byWordWrapping
@@ -41,8 +41,10 @@ class AlbumCollectionViewCell: UICollectionViewCell {
     }()
     
     lazy var artistNameLBL: UILabel = {
-        let label = UILabel(frame: CGRect(x: CGFloat(22), y: CGFloat(self.frame.height - 26), width: CGFloat(self.frame.width - 24), height: CGFloat(14)))
+        let label = UILabel(frame: CGRect(x: CGFloat(22), y: CGFloat(self.frame.height - 26), width: CGFloat(self.frame.width - 44), height: CGFloat(14)))
         label.font = UIFont.systemFont(ofSize: 12, weight: UIFont.Weight.medium)
+        label.lineBreakMode = .byTruncatingTail
+        label.numberOfLines = 1
         label.textColor = UIColor.gray
         label.text = "Artist Name"
         return label
@@ -74,8 +76,8 @@ class AlbumCollectionViewCell: UICollectionViewCell {
         
         self.addSubview(artistNameLBL)
         artistNameLBL.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -26).isActive = true
-        artistNameLBL.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 22 ).isActive = true
-        artistNameLBL.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -22 ).isActive = true
+        artistNameLBL.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 22).isActive = true
+        artistNameLBL.widthAnchor.constraint(equalToConstant: self.frame.width - 44).isActive = true
         artistNameLBL.heightAnchor.constraint(equalToConstant: 14).isActive = true
         
         self.addSubview(albumNameLBL)

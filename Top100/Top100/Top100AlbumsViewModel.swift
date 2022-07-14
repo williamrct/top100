@@ -84,7 +84,6 @@ final class Top100AlbumsViewModel: ObservableObject {
             }
     }
 
-
     func load() {
         if self.networkAvailable {
             self.state = .isLoading

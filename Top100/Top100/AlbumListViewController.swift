@@ -18,9 +18,7 @@ class AlbumListViewController: UICollectionViewController, UICollectionViewDeleg
     var top100AlbumsViewModel: Top100AlbumsViewModel
     private var cancellable: AnyCancellable?
     private let refreshControl = UIRefreshControl()
-    
-    var imageLoader = ImageLoader.shared
-    
+
     init(realmConfiguration: Realm.Configuration, collectionViewLayout: UICollectionViewLayout) {
         self.top100AlbumsViewModel = Top100AlbumsViewModel(realmConfiguration: realmConfiguration)
         super.init(collectionViewLayout: UICollectionViewFlowLayout())

@@ -1,21 +1,24 @@
 Hello, Note from William the author and submitter.
 
-This is not my best body of work but given the time crunch I am confortable with the submission as a way of demonstrating my ability to follow a requirements document and deliver a working app.
+Updates as 7/20/2022
+
+Updated code to use Realm for persisting Top100 List and Album images in database to allow for viewing of last fetched data when network is not available
 
 Application design:
 
 Shared instances:
   1. Network availability - NetworkConnectionManager
   2. Web services REST API calls - WebServiceManager
-  3. ImageLoader - Asynchronous Image Loading and Caching
 
 ViewController
   1. Top 100 Album List View Controller - AlbumListViewController
   2. Select Album Details View Controller - AlbumDetailViewController
 
 Model:
-  1. Top100AlbumsViewModel
+  1. Top100AlbumsViewModel - includes Realm database for storing top 100 album data and album art work images
   2. Top100AlbumFeed
+  3. PersistedFeed - Realm Conforming Class
+  4. CachedImage - Realm Conforming Class
 
 Helper:
   1. AlbumCollectionViewLayout
@@ -23,7 +26,7 @@ Helper:
 
 This was a quick attempt to satisfy the requirments.  There is a lot that can be done to improve the code and the exception handling. 
 
-I spent about 5 hours on this assigment.  
+I spent about 5 hours on this assigment intially and another 2 when adding the persistence. 
 
 Thank you for the opportunity to participate.
 

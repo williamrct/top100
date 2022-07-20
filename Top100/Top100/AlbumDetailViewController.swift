@@ -20,10 +20,12 @@ class AlbumDetailViewController: UIViewController {
     var copyright: String
     var genres: [Genre]
     
+    var top100AlbumsViewModel: Top100AlbumsViewModel
+    
     
     var estimatedHeight: CGFloat = 0
     
-    init(albumImageURL: String, albumURL: String, albumId: String, albumName: String, artistId: String, artistName: String, releaseDate: String, copyright: String, genres: [Genre]) {
+    init(albumImageURL: String, albumURL: String, albumId: String, albumName: String, artistId: String, artistName: String, releaseDate: String, copyright: String, genres: [Genre], top100AlbumsViewModel: Top100AlbumsViewModel) {
         self.albumImageURL = albumImageURL
         self.albumURL = albumURL
         self.albumId = albumId
@@ -33,6 +35,7 @@ class AlbumDetailViewController: UIViewController {
         self.releaseDate = releaseDate
         self.copyright = copyright
         self.genres = genres
+        self.top100AlbumsViewModel = top100AlbumsViewModel
         
         super.init(nibName: nil, bundle: nil)
         self.title = ""
@@ -121,7 +124,7 @@ class AlbumDetailViewController: UIViewController {
         self.view.backgroundColor = .white
     
         if let url = NSURL(string: albumImageURL)  {
-            ImageLoader.shared.loadImage(imageURL: url, completion: {image -> Void in
+            top100AlbumsViewModel.loadImage(imageURL: url, completion: {image -> Void in
                 self.albumImageView.image = image
             })
         }

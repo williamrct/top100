@@ -16,16 +16,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         
-        var config = Realm.Configuration.defaultConfiguration
-        // This configuration step is not really needed, but if we add Sync later,
-        // this allows us to keep the tasks we made.
-        config.fileURL!.deleteLastPathComponent()
-        config.fileURL!.appendPathComponent("project=Top100")
-        config.fileURL!.appendPathExtension("realm")
+        let config = Realm.Configuration.defaultConfiguration
         
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.makeKeyAndVisible()
-        window?.rootViewController = UINavigationController(rootViewController: AlbumListViewController(userRealmConfiguration: config, collectionViewLayout: UICollectionViewFlowLayout()))
+        window?.rootViewController = UINavigationController(rootViewController: AlbumListViewController(realmConfiguration: config, collectionViewLayout: UICollectionViewFlowLayout()))
         
         return true
     }

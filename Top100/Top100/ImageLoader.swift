@@ -8,6 +8,15 @@
 
 import UIKit
 import Foundation
+import Combine
+import RealmSwift
+
+class CachedImageObject: Object, ObjectKeyIdentifiable {
+    @Persisted(primaryKey: true) var id: ObjectId
+    @Persisted var image = Data()
+}
+
+
 public class ImageLoader {
     
     public static let shared = ImageLoader()

@@ -8,6 +8,7 @@
 
 import Foundation
 
+
 struct Top100AlbumsFeedResponse: Codable  {
     let feed: Feed
 }
@@ -17,15 +18,50 @@ struct Feed: Codable {
     let id: String
     let author: Author
     let links: [Link]
-    let copyright, country: String
+    let copyright: String
+    let country: String
     let icon: String
     let updated: String
     let results: [Result]
+    
+    enum CodingKeys: String, CodingKey {
+        case title
+        case id
+        case author
+        case links
+        case copyright
+        case country
+        case icon
+        case updated
+        case results
+    }
+    
+    init(title: String, id: String, author: Author, links: [Link], copyright: String, country: String, icon: String, updated: String, results: [Result]) {
+        self.title = title
+        self.id = id
+        self.author = author
+        self.links = links
+        self.copyright = copyright
+        self.country = country
+        self.icon = icon
+        self.updated = updated
+        self.results = results
+    }
 }
 
 struct Author: Codable  {
     let name: String
     let url: String
+    
+    enum CodingKeys: String, CodingKey {
+        case name
+        case url
+    }
+    
+    init(name: String, url: String) {
+        self.name = name
+        self.url = url
+    }
 }
 
 struct Link: Codable  {
@@ -34,10 +70,17 @@ struct Link: Codable  {
     enum CodingKeys: String, CodingKey {
         case linkSelf = "self"
     }
+    
+    init(linkSelf: String) {
+        self.linkSelf = linkSelf
+    }
 }
 
 struct Result: Codable  {
-    let artistName, id, name, releaseDate: String
+    let artistName: String
+    let id: String
+    let name: String
+    let releaseDate: String
     let kind: String
     let artistId: String?
     let artistUrl: String?
@@ -45,12 +88,53 @@ struct Result: Codable  {
     let artworkUrl100: String
     let genres: [Genre]
     let url: String
+    
+    enum CodingKeys: String, CodingKey {
+        case artistName
+        case id
+        case name
+        case releaseDate
+        case kind
+        case artistId
+        case artistUrl
+        case contentAdvisoryRating
+        case artworkUrl100
+        case genres
+        case url
+    }
+    
+    init(artistName: String, id: String, name: String, releaseDate: String, kind: String, artistId: String, artistUrl: String, contentAdvisoryRating: String, artworkUrl100: String, genres: [Genre], url: String) {
+        self.artistName = artistName
+        self.id = id
+        self.name = name
+        self.releaseDate = releaseDate
+        self.kind = kind
+        self.artistId = artistId
+        self.artistUrl = artistUrl
+        self.contentAdvisoryRating = contentAdvisoryRating
+        self.artworkUrl100 = artworkUrl100
+        self.genres = genres
+        self.url = url
+    }
 
 }
 
 struct Genre: Codable  {
-    let genreId, name: String
+    let genreId: String
+    let name: String
     let url: String
+
+    enum CodingKeys: String, CodingKey {
+        case genreId
+        case name
+        case url
+    }
+    
+    init(genreId: String, name: String, url: String) {
+        self.genreId = genreId
+        self.name = name
+        self.url = url
+    }
 }
 
 

@@ -12,19 +12,17 @@ import RealmSwift
 import Combine
 
 class AlbumListViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
-    
-    let userRealm: Realm
-    //let tasks: Results<Task>
-    
+
     var notificationToken: NotificationToken?
     
-    var top100AlbbumsViewModel: Top100AlbumsViewModel
+    var top100AlbumsViewModel: Top100AlbumsViewModel
     private var cancellable: AnyCancellable?
     private let refreshControl = UIRefreshControl()
     
-    init(userRealmConfiguration: Realm.Configuration, collectionViewLayout: UICollectionViewLayout) {
-        self.userRealm = try! Realm(configuration: userRealmConfiguration)
-        self.top100AlbbumsViewModel = Top100AlbumsViewModel()
+    var imageLoader = ImageLoader.shared
+    
+    init(realmConfiguration: Realm.Configuration, collectionViewLayout: UICollectionViewLayout) {
+        self.top100AlbumsViewModel = Top100AlbumsViewModel(realmConfiguration: realmConfiguration)
         super.init(collectionViewLayout: UICollectionViewFlowLayout())
         self.title = "Top 100 Albums"
     }
@@ -74,9 +72,9 @@ class AlbumListViewController: UICollectionViewController, UICollectionViewDeleg
         collectionView.alwaysBounceVertical = true
         collectionView.refreshControl = refreshControl
         
-        cancellable = top100AlbbumsViewModel.objectWillChange.sink { [weak self] in
+        cancellable = top100AlbumsViewModel.objectWillChange.sink { [weak self] in
             //self?.refreshCollectionView()
-            switch self?.top100AlbbumsViewModel.state {
+            switch self?.top100AlbumsViewModel.state {
             case .isWaiting:
                 // Show loading spinner
                 // debugPrint("iswaiting")
@@ -109,12 +107,12 @@ class AlbumListViewController: UICollectionViewController, UICollectionViewDeleg
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        top100AlbbumsViewModel.load()
+        top100AlbumsViewModel.load()
     }
     
     @objc
     private func didPullToRefresh(_ sender: Any) {
-        top100AlbbumsViewModel.load()
+        top100AlbumsViewModel.load()
         refreshControl.endRefreshing()
     }
     
@@ -124,7 +122,7 @@ class AlbumListViewController: UICollectionViewController, UICollectionViewDeleg
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        let albumCount = top100AlbbumsViewModel.top100AlbumsFeed?.results.count ?? 0
+        let albumCount = top100AlbumsViewModel.top100AlbumsFeed?.results.count ?? 0
     
         return albumCount
     }
@@ -135,17 +133,17 @@ class AlbumListViewController: UICollectionViewController, UICollectionViewDeleg
         else { preconditionFailure("Failed to load collection view cell") }
         
 
-        cell.albumId = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].id ?? UUID().uuidString
-        cell.albumName = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].name ?? "Unknown"
-        cell.albumNameLBL.text = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].name ?? "Unknown"
+        cell.albumId = top100AlbumsViewModel.top100AlbumsFeed?.results[indexPath.row].id ?? UUID().uuidString
+        cell.albumName = top100AlbumsViewModel.top100AlbumsFeed?.results[indexPath.row].name ?? "Unknown"
+        cell.albumNameLBL.text = top100AlbumsViewModel.top100AlbumsFeed?.results[indexPath.row].name ?? "Unknown"
         //cell.albumNameLBL.text = "This is a long name to see what happens when we word wrap"
-        cell.artistId = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artistId ?? UUID().uuidString
-        cell.artistName = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artistName ?? "Unknown"
-        cell.artistNameLBL.text = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artistName ?? "Unknown"
+        cell.artistId = top100AlbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artistId ?? UUID().uuidString
+        cell.artistName = top100AlbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artistName ?? "Unknown"
+        cell.artistNameLBL.text = top100AlbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artistName ?? "Unknown"
         
-        if let URLString = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artworkUrl100 {
+        if let URLString = top100AlbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artworkUrl100 {
             if let url = NSURL(string: URLString)  {
-                ImageLoader.shared.loadImage(imageURL: url, completion: {image -> Void in
+                top100AlbumsViewModel.loadImage(imageURL: url, completion: {image -> Void in
                     cell.albumImageView.image = image
                 })
             }
@@ -155,16 +153,16 @@ class AlbumListViewController: UICollectionViewController, UICollectionViewDeleg
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let albumImageURL = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artworkUrl100 else { return }
-        guard let albumURL = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].url else { return }
-        let albumId = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].id ?? ""
-        guard let albumName = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].name else { return }
-        let artistId = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artistId ?? ""
-        guard let artistName = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artistName else { return }
-        guard let releaseDate = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].releaseDate else { return }
-        guard let copyright = top100AlbbumsViewModel.top100AlbumsFeed?.copyright else { return }
-        guard let genres = top100AlbbumsViewModel.top100AlbumsFeed?.results[indexPath.row].genres else { return }
-        let vc = AlbumDetailViewController(albumImageURL: albumImageURL, albumURL: albumURL, albumId:albumId, albumName: albumName, artistId: artistId, artistName: artistName, releaseDate: releaseDate, copyright: copyright, genres: genres)
+        guard let albumImageURL = top100AlbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artworkUrl100 else { return }
+        guard let albumURL = top100AlbumsViewModel.top100AlbumsFeed?.results[indexPath.row].url else { return }
+        let albumId = top100AlbumsViewModel.top100AlbumsFeed?.results[indexPath.row].id ?? ""
+        guard let albumName = top100AlbumsViewModel.top100AlbumsFeed?.results[indexPath.row].name else { return }
+        let artistId = top100AlbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artistId ?? ""
+        guard let artistName = top100AlbumsViewModel.top100AlbumsFeed?.results[indexPath.row].artistName else { return }
+        guard let releaseDate = top100AlbumsViewModel.top100AlbumsFeed?.results[indexPath.row].releaseDate else { return }
+        guard let copyright = top100AlbumsViewModel.top100AlbumsFeed?.copyright else { return }
+        guard let genres = top100AlbumsViewModel.top100AlbumsFeed?.results[indexPath.row].genres else { return }
+        let vc = AlbumDetailViewController(albumImageURL: albumImageURL, albumURL: albumURL, albumId:albumId, albumName: albumName, artistId: artistId, artistName: artistName, releaseDate: releaseDate, copyright: copyright, genres: genres, top100AlbumsViewModel: top100AlbumsViewModel)
 
         self.navigationController?.pushViewController(vc, animated: true)
     }
